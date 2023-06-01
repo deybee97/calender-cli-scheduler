@@ -65,10 +65,37 @@ async function loadSavedCredentialsIfExist() {
 // console.log('welcome to the scheduler')
 
 const start = async() => {
+  
+  const regexTime = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+  const regexDate = /^(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
 
-    const response = await prompts(prompt)
 
-    const {summary, startDate, endDate, location, startTime, endTime,} = response
+  const onSubmit =  (prompt, answer)=>{
+
+    if(prompt.name === "startDate" || prompt.name === "endDate"){
+       
+      !regexDate.test(answer) && (()=>{
+           console.log('wrong format: date should be yyyy-mm-dd')
+           process.exit(1)
+      })()
+       
+      return
+    }
+    if(prompt.name === "startTime" || prompt.name === "endTime"){
+      
+      !regexTime.test(answer) && (()=>{
+        console.log('wrong format: time should be hh:mm:ss')
+        process.exit(1)
+     })()
+      return
+    }
+
+  }
+
+
+    const response = await prompts(questions,{onSubmit})
+
+    const {summary, startDate, endDate, location, startTime, endTime} = response
    
     const event = {
       summary,
@@ -91,7 +118,7 @@ const start = async() => {
 
 }
 
-const prompt = [
+const questions = [
 
     {
         type: 'text',
@@ -118,7 +145,7 @@ const prompt = [
         type: 'text',
         name: 'startDate',
         message: 'give a start date format:2015-10-01', 
-   
+
     },
     {
         type: 'text',
